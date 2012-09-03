@@ -5,8 +5,10 @@ require_relative "model"
 require_relative "parser"
 
 def create_link(target, destination)
-  relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)) )
-  sh("ln -s #{relPath} #{destination}")
+  if !File.exists?(destination) then
+    relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)) )
+    sh("ln -s #{relPath} #{destination}")
+  end
 end
 
 def remove_links(path)
@@ -36,7 +38,9 @@ verbose = options.get(:verbose)
 puts "\n\t[ #{NAME} (#{VERSION}) ]\n\n"
 
 repos.each do |repo|
-  puts "=> clean: #{repo.path}"
+  if mode == :clean then
+    puts "=> clean: #{repo.path}"
+  end
   remove_links(repo.path)
 end
 
