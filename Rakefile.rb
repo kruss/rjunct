@@ -6,10 +6,14 @@ Gem::PackageTask.new(spec){ |pkg| }
 task :default => [:version, :gem]
 
 task :version do
+  help = IO.readlines("README").join("").strip 
   File.open("lib/#{spec.name}/version.rb", "w") do |file|  
     file.puts "NAME = \"#{spec.name}\""
     file.puts "VERSION = \"#{spec.version}\""
     file.puts "BUILD = \"#{Time.new()}\""
+    file.puts "HELP = <<EOF"
+    file.puts help
+    file.puts "EOF"
   end
 end
   
@@ -33,8 +37,8 @@ psfList = [
   "example/repo2/proj1/foo.psf" 
 ]
 repoList = [ 
-  "http://repo1/foo/trunk/dev=example/repo1", 
-  "http://repo2/foo/trunk/dev=example/repo2" 
+  "svn://repo1/foo/trunk/dev=example/repo1", 
+  "svn://repo2/foo/trunk/dev=example/repo2" 
 ]
 
 desc "Run the example"

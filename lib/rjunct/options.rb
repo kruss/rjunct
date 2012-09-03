@@ -45,7 +45,7 @@ def parse()
     end
     
     @options[:mode] = :link
-    options.on("-m", "--mode MODE", "Run mode <[link]|clean>") do |param|
+    options.on("-m", "--mode MODE", "Run mode: [link]|clean") do |param|
       if param.eql?("clean") then
         @options[:mode] = :clean
       end

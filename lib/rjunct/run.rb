@@ -5,6 +5,10 @@ require_relative "model"
 require_relative "parser"
 require_relative "linker"
 
-options = Options.new()
-linker = Linker.new(options)
-linker.run()
+if ARGV.size == 0 then
+  puts HELP
+else
+  options = Options.new()
+  linker = Linker.new(options)
+  linker.run()
+end

@@ -63,9 +63,9 @@ class Repository
   end
   
   def info()
-    info = "- #{@url} => #{@path}\n"
+    info = "#{@url} => #{@path}\n"
     @projects.each do |project|
-      info += "  |- #{project.info}\n"
+      info += " |- #{project.info}\n"
     end
     return info
   end
