@@ -34,10 +34,10 @@ task :example => [:install] do
     "example/repo1/proj1/foo.psf", 
     "example/repo2/proj2/foo.psf" 
   ]
-  rootList = [ 
+  repoList = [ 
     "example/repo1", 
     "example/repo2" 
   ]
-  command = "#{spec.name} -p #{psfList.join(",")} -r #{rootList.join(",")}"
+  command = "#{spec.name} -v -p #{psfList.join(",")} -r #{repoList.join(",")}"
   sh(command)
 end

@@ -2,7 +2,16 @@ require_relative "version"
 require_relative "options"
 require_relative "model"
 require_relative "parser"
-require_relative "linker"
+
+def create_link(fromPath, toPath)
+  puts "create link: #{fromPath} -> #{toPath}"
+  # TODO
+end
+
+def remove_link(path)
+  puts "remove link: #{path}"
+  # TODO
+end
 
 if ARGV.size == 0 then
   puts "#{NAME} (#{VERSION}) - build: #{BUILD}"
@@ -11,29 +20,57 @@ if ARGV.size == 0 then
 end
 
 options = Options.new()
+verbose = options.get(:verbose)
 
-data = ProjectSet.new
-
+puts ">>> PARSE PSF-FILES <<<"
+projects = Array.new
 options.get(:psf).each do |psf|
-  parser = PsfParser.new(psf)
-  parser.parse(data)
+  puts "=> #{psf}"
+  parser = PsfParser.new(psf, verbose)
+  parser.parse()
+  projects.concat(parser.projects)
 end
+puts "=> #{projects.size} projects found"
 
-data.minimize()
+puts ">>> CREATE PROJECT MAPPING <<<" 
+set = ProjectSet.new(projects, verbose)
+puts "=> #{set.repoUrls.size} repos found"
+set.map(options.get(:repo))
+if verbose then
+  set.projects.each do |project|
+    puts "#{project.info} => #{set.containerPaths[project]}/#{project.remoteName}"
+  end
+end
+puts "=> #{set.containerPaths.size} container found"
 
-data.projects.each do |project|
-  options.get(:root).each do |root|
-    path = "#{root}#{project.url != nil ? "/#{project.url}" : ""}/#{project.name}"
-    if FileTest.directory?(path) then
-      project.path = path
-      break
-    end
+puts ">>> CREATE LINKS (RENAMED PROJECTS) <<<".upcase 
+set.projects.each do |project|
+  if set.is_mapped(project) && project.renamed? then
+    fromPath = set.containerPaths[project]+"/"+project.remoteName
+    toPath = set.containerPaths[project]+"/"+project.localName
+    create_link(fromPath, toPath)
   end
 end
 
-data.projects.each do |project|
-  puts "project: #{project.info}"
+puts ">>> CREATE LINKS (SUBFOLDER PROJECTS) <<<".upcase 
+set.projects.each do |project|
+  if set.is_mapped(project) && !set.is_root_project?(project) then
+    fromPath = set.containerPaths[project]+"/"+project.localName
+    toPath = set.repoPaths[project]+"/"+project.localName
+    create_link(fromPath, toPath)
+  end
 end
 
-#linker = ProjectLinker.new(parser.data, options.get(:folders))
-#linker.link()
+puts ">>> CREATE LINKS (REPO PROJECTS) <<<".upcase 
+set.projects.each do |project|
+  if set.is_mapped(project) then
+    options.get(:repo).each do |repo|
+      if !set.repoPaths[project].eql?(repo) then
+        fromPath = set.containerPaths[project]+"/"+project.localName
+        toPath = repo+"/"+project.localName
+        create_link(fromPath, toPath)
+      end
+    end
+  end
+end
+  

@@ -16,8 +16,8 @@ private
 def parse()
   parser = OptionParser.new do |options|
     
+    @options[:psf] = Array.new
     options.on("-p", "--psf LIST", "List of psf-files (path,...)") do |param|
-      @options[:psf] = Array.new
       param.split(",").each do |part|
         path = clean_path(part)
         if !FileTest.file?(path) then
@@ -27,15 +27,20 @@ def parse()
       end
     end
     
-    options.on("-r", "--root LIST", "List of project-roots (path,...)") do |param|
-      @options[:root] = Array.new
+    @options[:repo] = Array.new
+    options.on("-r", "--repo LIST", "List of repo-folders (path,...)") do |param|
       param.split(",").each do |part|
         path = clean_path(part)
         if !FileTest.directory?(path) then
           raise "not a directory: #{path}"
         end
-        @options[:root] << path
+        @options[:repo] << path
       end
+    end
+    
+    @options[:verbose] = false
+    options.on("-v", "--verbose", "Run in verbose mode") do
+      @options[:verbose] = true
     end
     
     options.on("-h", "--help", "Display this screen") do
@@ -45,6 +50,13 @@ def parse()
     
   end
   parser.parse!
+  
+  if @options[:psf].size == 0 then
+    raise "no psf specified"
+  end
+  if @options[:repo].size == 0 then
+    raise "no repo specified"
+  end
 end
 
 def clean_path(path)

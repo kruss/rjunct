@@ -1,31 +1,34 @@
 
 class PsfParser
   
-  def initialize(psf)
+  # initilaize parser for a psf-file
+  def initialize(psf, verbose)
     @psf = psf
+    @verbose = verbose
   end
   
-  def parse(data)
-    puts "=> parse psf: #{@psf}"
-    @data = data
-    @provider = nil
+  def parse()
+    @projects = Array.new
+    @provider = :undefined
     parsePsfContent(IO.readlines(@psf))
   end
+  
+  attr_accessor :projects
 
 private
 
   def parsePsfContent(lines)
       lines.each do |line|
-        if @provider == nil && line.index("<provider") != nil then
+        if @provider == :undefined && line.index("<provider") != nil then
           parsePsfProvider(line)
         end
-        if @provider != nil && line.index("<project") != nil then
+        if @provider != :undefined && line.index("<project") != nil then
           parsePsfProject(line)
         end
       end
   end
 
-  # eg: <provider id="org.eclipse.team.svn.core.svnnature">
+  # svn: <provider id="org.eclipse.team.svn.core.svnnature">
   def parsePsfProvider(line)
     if line.index("svnnature") != nil then
       @provider = :svn
@@ -39,13 +42,15 @@ private
     if @provider == :svn then
       lineParts = line.split(",")
       projectUrl = lineParts[1]
-      projectLocalName = lineParts[2]
+      localName = lineParts[2]
       urlParts = projectUrl.split("/")
-      projectRemoteName = urlParts[urlParts.size()-1]
-      containerUrl = projectUrl.chomp("/"+projectRemoteName)
-      
-      puts "#{containerUrl} => #{projectRemoteName} : #{projectLocalName}"
-      @data.projects << Project.new(containerUrl, projectRemoteName, projectLocalName)
+      remoteName = urlParts[urlParts.size()-1]
+      baseUrl = projectUrl.chomp("/"+remoteName)
+      project = PsfProject.new(baseUrl, remoteName, localName)
+      if @verbose then
+        puts "#{project.info}"
+      end
+      @projects << project
     end
   end  
   
