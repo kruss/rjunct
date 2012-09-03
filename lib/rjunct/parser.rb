@@ -2,9 +2,8 @@
 class PsfParser
   
   # initilaize parser for a psf-file
-  def initialize(psf, verbose)
+  def initialize(psf)
     @psf = psf
-    @verbose = verbose
   end
   
   def parse()
@@ -47,9 +46,6 @@ private
       remoteName = urlParts[urlParts.size()-1]
       baseUrl = projectUrl.chomp("/"+remoteName)
       project = Project.new(baseUrl, remoteName, localName)
-      if @verbose then
-        puts "#{project.info}"
-      end
       @projects << project
     end
   end  

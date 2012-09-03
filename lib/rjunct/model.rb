@@ -1,10 +1,9 @@
 
 class ProjectSet
   
-  def initialize(projects, repos, verbose)
+  def initialize(projects, repos)
     @projects = projects
     @repos = repos
-    @verbose = verbose
     pack()
   end
   attr_accessor :projects
@@ -20,15 +19,12 @@ class ProjectSet
         end
       end
       if project.repo == nil then
-        puts "WARNING project repo not found: #{project.info}"
+        puts "WARNING repo not found: #{project.info}"
         project.valid = false
       end
     end
     @repos.each do |repo|
       repo.pack()
-    end
-    if @verbose then
-      puts info()
     end
   end
   
@@ -57,7 +53,7 @@ class Repository
         project.repoPath = @url.eql?(project.baseUrl) ? "" : project.baseUrl[@url.size+1, project.baseUrl.size-1]
         projectPath = project.get_base_path()+"/"+project.remoteName
         if !FileTest.directory?(projectPath) then
-          puts "WARNING project path not found: #{projectPath}"
+          puts "WARNING path not found: #{projectPath}"
           project.valid = false
         end
       end
@@ -106,6 +102,10 @@ class Project
   end
   
   def info()
-    return "#{@baseUrl}/#{@remoteName}#{is_renamed_project? ? "|#{@localName}" : ""}#{@repo != nil ? " => #{get_base_path()}/#{@remoteName}": ""}"
+    info = "#{@baseUrl}/#{@remoteName}#{is_renamed_project? ? "|#{@localName}" : ""}"
+    if @repo != nil then
+      info = info + " => #{get_base_path()}/#{@remoteName}"
+    end
+    return info
   end
 end

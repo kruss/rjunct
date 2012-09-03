@@ -42,7 +42,12 @@ task :example => [:install] do
   sh("#{spec.name} -v -p #{psfList.join(",")} -r #{repoList.join(",")}")
 end
 
+desc "Run the example (none verbose)"
+task :example_quiet => [:install] do
+  sh("#{spec.name} -p #{psfList.join(",")} -r #{repoList.join(",")}")
+end
+
 desc "Remove example artifacts"
 task :example_clean => [:install] do
-  sh("#{spec.name} -m clean -r #{repoList.join(",")}")
+  sh("#{spec.name} -v -m clean -r #{repoList.join(",")}")
 end
