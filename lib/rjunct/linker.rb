@@ -61,8 +61,9 @@ private
       if project.valid && project.is_renamed_project? then
         fromPath = project.get_base_path()+"/"+project.remoteName
         toPath = project.get_base_path()+"/"+project.localName
-        create_link(fromPath, toPath)
-        project.repo.add_ignore(toPath)
+        if create_link(fromPath, toPath) then
+          project.repo.add_ignore(toPath)
+        end
       end
     end
   end
@@ -73,8 +74,9 @@ private
       if project.valid && !project.is_root_project? then
         fromPath = project.get_base_path()+"/"+project.localName
         toPath = project.repo.path+"/"+project.localName
-        create_link(fromPath, toPath)
-        project.repo.add_ignore(toPath)
+        if create_link(fromPath, toPath) then
+          project.repo.add_ignore(toPath)
+        end
       end
     end
   end
@@ -87,8 +89,9 @@ private
           if project.repo != repo then
             fromPath = project.get_base_path()+"/"+project.localName
             toPath = repo.path+"/"+project.localName
-            create_link(fromPath, toPath)
-            repo.add_ignore(toPath)
+            if create_link(fromPath, toPath) then
+              repo.add_ignore(toPath)
+            end
           end
         end
       end
@@ -105,7 +108,9 @@ private
               fromPath = project2.get_base_path()+"/"+project2.localName
               toPath = project1.get_base_path()+"/"+project2.localName
               create_link(fromPath, toPath)
-              project1.repo.add_ignore(toPath)
+              if create_link(fromPath, toPath) then
+                project1.repo.add_ignore(toPath)
+              end
             end
           end
         end
@@ -146,7 +151,7 @@ private
             file.write("#{content}\n") 
           end
           file.write("#{ignore_start()}\n")
-          file.write(repo.ignores.join("\n")) 
+          file.write(repo.ignores.sort.join("\n")) 
           file.write("\n#{ignore_end()}")
         }
       end
@@ -166,6 +171,9 @@ private
       relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)))
       execute("ln -s #{relPath} #{destination}")
       @created =  @created + 1
+      return true
+    else
+      return false
     end
   end
   
