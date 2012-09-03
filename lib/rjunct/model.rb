@@ -42,10 +42,12 @@ class Repository
     @url = url
     @path = path
     @projects = Array.new
+    @ignores = Array.new
   end
   attr_accessor :url
   attr_accessor :path
   attr_accessor :projects
+  attr_accessor :ignores
   
   def pack()
     @projects.each do |project|
@@ -66,6 +68,13 @@ class Repository
       info += "  |- #{project.info}\n"
     end
     return info
+  end
+  
+  def add_ignore(path)
+    ignore = Pathname.new(path).relative_path_from(Pathname.new(@path))
+    if !@ignores.include?(ignore) then
+      @ignores << ignore
+    end
   end
 end
 

@@ -11,9 +11,11 @@ class Linker
   def run()
     puts "\n\t[ #{NAME} (#{VERSION}) ]\n\n"
     clean_repos()
+    remove_ignores()
     if @mode == :link then
       create_model()
       create_links()
+      create_ignores()
     end
     puts "\n\t[ done. ]\n\n"
   end
@@ -60,6 +62,7 @@ private
         fromPath = project.get_base_path()+"/"+project.remoteName
         toPath = project.get_base_path()+"/"+project.localName
         create_link(fromPath, toPath)
+        project.repo.add_ignore(toPath)
       end
     end
   end
@@ -71,6 +74,7 @@ private
         fromPath = project.get_base_path()+"/"+project.localName
         toPath = project.repo.path+"/"+project.localName
         create_link(fromPath, toPath)
+        project.repo.add_ignore(toPath)
       end
     end
   end
@@ -84,6 +88,7 @@ private
             fromPath = project.get_base_path()+"/"+project.localName
             toPath = repo.path+"/"+project.localName
             create_link(fromPath, toPath)
+            repo.add_ignore(toPath)
           end
         end
       end
@@ -100,6 +105,7 @@ private
               fromPath = project2.get_base_path()+"/"+project2.localName
               toPath = project1.get_base_path()+"/"+project2.localName
               create_link(fromPath, toPath)
+              project1.repo.add_ignore(toPath)
             end
           end
         end
@@ -107,9 +113,57 @@ private
     end
   end
   
+  def remove_ignores()
+    @repos.each do |repo|
+      path = repo.path+"/.gitignore"
+      if File.exists?(path) then
+        lines = IO.readlines(path)
+        File.open(path, "w") { |file| 
+          copy = true
+          lines.each do |line|
+            if line.start_with?(ignore_start()) then
+              copy = false
+            elsif line.start_with?(ignore_end()) then
+              copy = true
+            elsif copy then
+              file.write(line)
+            end
+          end
+        }
+      end
+    end
+  end
+  
+  def create_ignores()
+    @repos.each do |repo|
+      path = repo.path+"/.gitignore"
+      if repo.ignores.size > 0 then
+        if File.exists?(path) then
+          content = IO.readlines(path).join("").strip 
+        end
+        File.open(path, "w") { |file| 
+          if content != nil && !content.eql?("") then
+            file.write("#{content}\n") 
+          end
+          file.write("#{ignore_start()}\n")
+          file.write(repo.ignores.join("\n")) 
+          file.write("\n#{ignore_end()}")
+        }
+      end
+    end
+  end
+  
+  def ignore_start()
+    return "# #{NAME} >>>"
+  end
+  
+  def ignore_end()
+    return "# <<< #{NAME}"
+  end
+  
   def create_link(target, destination)
     if !File.exists?(destination) then
-      relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)) )
+      relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)))
       execute("ln -s #{relPath} #{destination}")
       @created =  @created + 1
     end
