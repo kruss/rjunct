@@ -43,8 +43,15 @@ def parse()
       end
     end
     
+    @options[:mode] = :link
+    options.on("-m", "--mode MODE", "Run mode <[link]|clean>") do |param|
+      if param.eql?("clean") then
+        @options[:mode] = :clean
+      end
+    end
+
     @options[:verbose] = false
-    options.on("-v", "--verbose", "Run in verbose mode") do
+    options.on("-v", "--verbose", "Verbose mode") do
       @options[:verbose] = true
     end
     
@@ -56,7 +63,7 @@ def parse()
   end
   parser.parse!
   
-  if @options[:psf].size == 0 then
+  if @options[:mode] == :link  && @options[:psf].size == 0 then
     raise "no psf specified"
   end
   if @options[:repo].size == 0 then

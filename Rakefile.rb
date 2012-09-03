@@ -28,33 +28,21 @@ task :clean do
   sh("rm -rf pkg/#{spec.name}-#{spec.version}")
 end
 
+psfList = [ 
+  "example/repo1/proj1/foo.psf", 
+  "example/repo2/proj1/foo.psf" 
+]
+repoList = [ 
+  "http://repo1/foo/trunk/dev=example/repo1", 
+  "http://repo2/foo/trunk/dev=example/repo2" 
+]
+
 desc "Run the example"
-task :example => [:install, :unlink] do
-  psfList = [ 
-    "example/repo1/proj1/foo.psf", 
-    "example/repo2/proj1/foo.psf" 
-  ]
-  repoList = [ 
-    "http://repo1/foo/trunk/dev=example/repo1", 
-    "http://repo2/foo/trunk/dev=example/repo2" 
-  ]
-  command = "#{spec.name} -p #{psfList.join(",")} -r #{repoList.join(",")}"
-  sh(command)
+task :example => [:install] do
+  sh("#{spec.name} -v -p #{psfList.join(",")} -r #{repoList.join(",")}")
 end
 
 desc "Remove example artifacts"
-task :unlink do
-  remove_symlinks("example")
-end
-
-def remove_symlinks(item)
-  if FileTest.directory?(item)
-    Dir.entries(item).each do |entry|
-      if !entry.start_with?(".") then
-        remove_symlinks(item+"/"+entry)
-      end
-    end
-  elsif File.symlink?(item) then
-    sh("rm #{item}")
-  end
+task :example_clean => [:install] do
+  sh("#{spec.name} -m clean -r #{repoList.join(",")}")
 end
