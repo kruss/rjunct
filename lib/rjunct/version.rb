@@ -1,6 +1,6 @@
 NAME = "rjunct"
 VERSION = "0.1.0"
-BUILD = "2012-09-03 22:16:31 +0200"
+BUILD = "2012-09-03 23:25:04 +0200"
 HELP = <<EOF
 OVERVIEW
 
@@ -19,12 +19,12 @@ EXAMPLE
 
 Two separate svn repos used with following structure:
 
-svn://repo1/foo/trunk/dev => path: workspace/repo1
- |- svn://repo1/foo/trunk/dev/proj1 => path: workspace/repo1/proj1 (containing psf for repo1)
- |- svn://repo1/foo/trunk/dev/sub1/proj1|proj2 => path: workspace/repo1/sub1/proj1
-svn://repo2/foo/trunk/dev => path: workspace/repo2
- |- svn://repo2/foo/trunk/dev/proj1|proj3 => path: workspace/repo2/proj1 (containing psf for repo2)
- |- svn://repo2/foo/trunk/dev/sub1/proj1|proj4 => path: workspace/repo2/sub1/proj1
+svn://repo1/foo/trunk/dev => workspace/repo1
+ |- svn://repo1/foo/trunk/dev/proj1 (projA) => workspace/repo1/proj1 (containing psf for repo1)
+ |- svn://repo1/foo/trunk/dev/sub/proj2 (projB) => workspace/repo1/sub/proj2
+svn://repo2/foo/trunk/dev => workspace/repo2
+ |- svn://repo2/foo/trunk/dev/proj3 (projC) => workspace/repo2/proj3 (containing psf for repo2)
+ |- svn://repo2/foo/trunk/dev/sub/proj4 (projD) => workspace/repo2/sub/proj4
 
 Would be linked / unliked with the following options (separate psf-files are supported, but not mandatory):
 
@@ -40,5 +40,5 @@ unlink:
 This will result in symlinks within git repositories so that each project could see all others,-
 as if a flat project structure would be given.
 
-Also .gitignore files will be updated within git repositories to ignore the created links ;-)
+Finally symlinks will be automaticaly added to .gitignore files within git repositories ;-)
 EOF

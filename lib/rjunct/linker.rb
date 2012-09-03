@@ -72,7 +72,7 @@ private
     puts "=> link subfolders to root" 
     @model.projects.each do |project|
       if project.valid && !project.is_root_project? then
-        fromPath = project.get_base_path()+"/"+project.localName
+        fromPath = project.get_base_path()+"/"+project.remoteName
         toPath = project.repo.path+"/"+project.localName
         if create_link(fromPath, toPath) then
           project.repo.add_ignore(toPath)
@@ -87,7 +87,7 @@ private
       if project.valid then
         @repos.each do |repo|
           if project.repo != repo then
-            fromPath = project.get_base_path()+"/"+project.localName
+            fromPath = project.get_base_path()+"/"+project.remoteName
             toPath = repo.path+"/"+project.localName
             if create_link(fromPath, toPath) then
               repo.add_ignore(toPath)
@@ -104,10 +104,9 @@ private
       if project1.valid && !project1.is_root_project? then
         @repos.each do |repo|
           repo.projects.each do |project2|
-            if project1.repo != project2.repo || !project1.repoPath.eql?(project2.repoPath) then
-              fromPath = project2.get_base_path()+"/"+project2.localName
-              toPath = project1.get_base_path()+"/"+project2.localName
-              create_link(fromPath, toPath)
+            fromPath = project2.get_base_path()+"/"+project2.remoteName
+            toPath = project1.get_base_path()+"/"+project2.localName
+            if project1 != project2 && !File.exists?(toPath) then
               if create_link(fromPath, toPath) then
                 project1.repo.add_ignore(toPath)
               end
@@ -139,6 +138,44 @@ private
     end
   end
   
+  def create_link(target, destination)
+    relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)))
+    if execute("ln -s #{relPath} #{destination}") then
+      @created =  @created + 1
+      return true
+    else
+      return false
+    end
+  end
+  
+  def remove_links(path)
+    if File.symlink?(path) then
+      if execute("rm #{path}") then
+        @removed =  @removed + 1
+      end
+    elsif FileTest.directory?(path)
+      Dir.entries(path).each do |entry|
+        if !entry.start_with?(".") then
+          remove_links(path+"/"+entry)
+        end
+      end
+    end
+  end
+  
+  def execute(command)
+    if @verbose then
+      puts "#{command}"
+    end
+    out = `#{command} 2>&1`
+    status = $?.to_i
+    if status != 0 then
+      puts "WARNING command failed: '#{command}' (#{status})"
+      return false
+    else
+      return true
+    end
+  end
+  
   def create_ignores()
     @repos.each do |repo|
       path = repo.path+"/.gitignore"
@@ -164,41 +201,6 @@ private
   
   def ignore_end()
     return "# <<< #{NAME}"
-  end
-  
-  def create_link(target, destination)
-    if !File.exists?(destination) then
-      relPath = Pathname.new(target).relative_path_from(Pathname.new(File.dirname(destination)))
-      execute("ln -s #{relPath} #{destination}")
-      @created =  @created + 1
-      return true
-    else
-      return false
-    end
-  end
-  
-  def remove_links(path)
-    if File.symlink?(path) then
-      execute("rm #{path}")
-      @removed =  @removed + 1
-    elsif FileTest.directory?(path)
-      Dir.entries(path).each do |entry|
-        if !entry.start_with?(".") then
-          remove_links(path+"/"+entry)
-        end
-      end
-    end
-  end
-  
-  def execute(command)
-    if @verbose then
-      puts "#{command}"
-    end
-    out = `#{command} 2>&1`
-    status = $?.to_i
-    if status != 0 then
-      raise "CMD failed: #{command} (#{status})"
-    end
   end
   
 end

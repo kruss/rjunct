@@ -34,7 +34,7 @@ end
 
 psfList = [ 
   "example/repo1/proj1/foo.psf", 
-  "example/repo2/proj1/foo.psf" 
+  "example/repo2/proj3/foo.psf" 
 ]
 repoList = [ 
   "svn://repo1/foo/trunk/dev=example/repo1", 

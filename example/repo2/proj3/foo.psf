@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.eclipse.team.svn.core.svnnature">
+<project reference="1.0.1,svn://repo2/foo/trunk/dev/proj3,projC,..."/>
+<project reference="1.0.1,svn://repo2/foo/trunk/dev/sub/proj4,projD,..."/>
+</provider>
+</psf>

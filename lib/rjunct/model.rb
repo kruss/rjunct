@@ -111,7 +111,7 @@ class Project
   end
   
   def info()
-    info = "#{@baseUrl}/#{@remoteName}#{is_renamed_project? ? "|#{@localName}" : ""}"
+    info = "#{@baseUrl}/#{@remoteName}#{is_renamed_project? ? " (#{@localName})" : ""}"
     if @repo != nil then
       info = info + " => #{get_base_path()}/#{@remoteName}"
     end
