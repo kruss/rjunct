@@ -15,6 +15,7 @@ private
 
 def parse()
   parser = OptionParser.new do |options|
+    options.banner = "#{NAME} (#{VERSION}) - build: #{BUILD}"
     
     @options[:psf] = Array.new
     options.on("-p", "--psf LIST", "List of psf-files (path,...)") do |param|
