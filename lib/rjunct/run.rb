@@ -1,11 +1,11 @@
+require "rake"
 require_relative "version"
 require_relative "options"
 require_relative "model"
 require_relative "parser"
 
 def create_link(fromPath, toPath)
-  puts "create link: #{fromPath} -> #{toPath}"
-  # TODO
+  sh("ln -s #{fromPath} #{toPath}")
 end
 
 def remove_link(path)

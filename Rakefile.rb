@@ -29,7 +29,7 @@ task :clean do
 end
 
 desc "Run the example"
-task :example => [:install] do
+task :example => [:install, :unlink] do
   psfList = [ 
     "example/repo1/proj1/foo.psf", 
     "example/repo2/proj1/foo.psf" 
@@ -40,4 +40,21 @@ task :example => [:install] do
   ]
   command = "#{spec.name} -p #{psfList.join(",")} -r #{repoList.join(",")}"
   sh(command)
+end
+
+desc "Remove example artifacts"
+task :unlink do
+  remove_symlinks("example")
+end
+
+def remove_symlinks(item)
+  if FileTest.directory?(item)
+    Dir.entries(item).each do |entry|
+      if !entry.start_with?(".") then
+        remove_symlinks(item+"/"+entry)
+      end
+    end
+  elsif File.symlink?(item) then
+    sh("rm #{item}")
+  end
 end
