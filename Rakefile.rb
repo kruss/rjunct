@@ -32,12 +32,12 @@ desc "Run the example"
 task :example => [:install] do
   psfList = [ 
     "example/repo1/proj1/foo.psf", 
-    "example/repo2/proj2/foo.psf" 
+    "example/repo2/proj1/foo.psf" 
   ]
   repoList = [ 
-    "example/repo1", 
-    "example/repo2" 
+    "http://repo1/foo/trunk/dev=example/repo1", 
+    "http://repo2/foo/trunk/dev=example/repo2" 
   ]
-  command = "#{spec.name} -v -p #{psfList.join(",")} -r #{repoList.join(",")}"
+  command = "#{spec.name} -p #{psfList.join(",")} -r #{repoList.join(",")}"
   sh(command)
 end

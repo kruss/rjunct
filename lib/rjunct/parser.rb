@@ -46,7 +46,7 @@ private
       urlParts = projectUrl.split("/")
       remoteName = urlParts[urlParts.size()-1]
       baseUrl = projectUrl.chomp("/"+remoteName)
-      project = PsfProject.new(baseUrl, remoteName, localName)
+      project = Project.new(baseUrl, remoteName, localName)
       if @verbose then
         puts "#{project.info}"
       end

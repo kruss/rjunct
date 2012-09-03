@@ -28,13 +28,18 @@ def parse()
     end
     
     @options[:repo] = Array.new
-    options.on("-r", "--repo LIST", "List of repo-folders (path,...)") do |param|
+    options.on("-r", "--repo LIST", "List of repo url to folder mapping (url=path,...)") do |param|
       param.split(",").each do |part|
-        path = clean_path(part)
+        segments = part.split("=")
+        if segments.size != 2 then
+          raise "invalid format: #{part} #{segments.size}"
+        end
+        url = segments[0]
+        path = clean_path(segments[1])
         if !FileTest.directory?(path) then
           raise "not a directory: #{path}"
         end
-        @options[:repo] << path
+        @options[:repo] << Repository.new(url, path)
       end
     end
     
