@@ -36,6 +36,7 @@ verbose = options.get(:verbose)
 puts "\n\t[ #{NAME} (#{VERSION}) ]\n\n"
 
 repos.each do |repo|
+  puts "=> clean: #{repo.path}"
   remove_links(repo.path)
 end
 
@@ -50,7 +51,7 @@ if mode == :link then
   puts "=> #{projects.size} projects found"
   set = ProjectSet.new(projects, repos, verbose)
   
-  puts "=> create links for renamed projects" 
+  puts "=> link renamed projects" 
   set.projects.each do |project|
     if project.valid && project.is_renamed_project? then
       fromPath = project.get_base_path()+"/"+project.remoteName
@@ -59,7 +60,7 @@ if mode == :link then
     end
   end
   
-  puts "=> create links for subfolder projects" 
+  puts "=> link subfolder projects to root" 
   set.projects.each do |project|
     if project.valid && !project.is_root_project? then
       fromPath = project.get_base_path()+"/"+project.localName
@@ -68,7 +69,7 @@ if mode == :link then
     end
   end
   
-  puts "=> create links for cross-repo projects" 
+  puts "=> link root projects accross repos" 
   set.projects.each do |project|
     if project.valid then
       repos.each do |repo|
@@ -76,6 +77,21 @@ if mode == :link then
           fromPath = project.get_base_path()+"/"+project.localName
           toPath = repo.path+"/"+project.localName
           create_link(fromPath, toPath)
+        end
+      end
+    end
+  end
+  
+  puts "=> link root projects to subfolders" 
+  set.projects.each do |project1|
+    if project1.valid && !project1.is_root_project? then
+      repos.each do |repo|
+        repo.projects.each do |project2|
+          if project1.repo != project2.repo || !project1.repoPath.eql?(project2.repoPath) then
+            fromPath = project2.get_base_path()+"/"+project2.localName
+            toPath = project1.get_base_path()+"/"+project2.localName
+            create_link(fromPath, toPath)
+          end
         end
       end
     end

@@ -54,7 +54,7 @@ class Repository
   def pack()
     @projects.each do |project|
       if project.valid then
-        project.repoPath = @url.eql?(project.baseUrl) ? nil : project.baseUrl[@url.size+1, project.baseUrl.size-1]
+        project.repoPath = @url.eql?(project.baseUrl) ? "" : project.baseUrl[@url.size+1, project.baseUrl.size-1]
         projectPath = project.get_base_path()+"/"+project.remoteName
         if !FileTest.directory?(projectPath) then
           puts "WARNING project path not found: #{projectPath}"
@@ -94,7 +94,7 @@ class Project
   end
   
   def is_root_project?()
-    return repoPath == nil
+    return repoPath.eql?("")
   end
   
   def get_base_path()
